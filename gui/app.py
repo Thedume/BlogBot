@@ -1,4 +1,6 @@
 import customtkinter as ctk
+import sys
+from pathlib import Path
 
 from gui.main_screen import MainScreen
 from gui.song_form import SongFormScreen
@@ -7,11 +9,16 @@ from gui.result_screen import ResultScreen
 from gui.history_screen import HistoryScreen
 from gui.settings_screen import SettingsScreen
 
+def resource_path(relative_path: str) -> str:
+    """개발 환경과 PyInstaller onefile 빌드 양쪽에서 동작하는 리소스 경로."""
+    base_path = getattr(sys, "_MEIPASS", Path(__file__).resolve().parent.parent)
+    return str(Path(base_path) / relative_path)
 
 class App(ctk.CTk):
     def __init__(self):
         super().__init__()
         self.title("블로그 포스팅 생성기")
+        self.iconbitmap(resource_path("assets/icon.ico"))
         self.geometry("960x780")
         self.minsize(700, 550)
 
