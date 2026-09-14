@@ -18,7 +18,8 @@ class SongFormScreen(ctk.CTkFrame):
 
         self.spotify_link = self._add_entry(scroll, "Spotify 링크 (선택)", "https://open.spotify.com/track/...")
         self.youtube_link = self._add_entry(scroll, "YouTube 링크 (선택)", "https://youtu.be/...")
-        self.title_kr = self._add_entry(scroll, "제목 한국어 해석", "예: 아이돌")
+        self.title_kr = self._add_entry(scroll, "제목 한국어 해석 (선택)", "예: 아이돌")
+        self.artist = self._add_entry(scroll, "아티스트 (선택)", "미입력 시 Spotify 정보로 자동 채워집니다")
 
         ctk.CTkLabel(scroll, text="가사 (원어/발음/번역)", anchor="w").pack(fill="x", pady=(12, 4))
         self.lyrics = ResizableTextbox(scroll, height=120)
@@ -51,6 +52,7 @@ class SongFormScreen(ctk.CTkFrame):
         self.spotify_link.delete(0, "end")
         self.youtube_link.delete(0, "end")
         self.title_kr.delete(0, "end")
+        self.artist.delete(0, "end")
         self.lyrics.clear()
         self.impression.clear()
         self.error_label.configure(text="")
@@ -58,12 +60,10 @@ class SongFormScreen(ctk.CTkFrame):
     def _on_submit(self):
         self.error_label.configure(text="")
         title_kr = self.title_kr.get().strip()
+        artist_manual = self.artist.get().strip()
         lyrics = self.lyrics.get().strip()
         impression = self.impression.get().strip()
 
-        if not title_kr:
-            self.error_label.configure(text="제목 한국어 해석을 입력해주세요.")
-            return
         if not lyrics:
             self.error_label.configure(text="가사를 입력해주세요.")
             return
@@ -85,24 +85,20 @@ class SongFormScreen(ctk.CTkFrame):
                 messagebox.showerror("오류", f"Spotify에서 곡 정보를 가져오지 못했습니다.\n링크를 확인해 주세요.\n\n{e}")
                 return
 
-        blog_title = build_song_title(track_info.get("name", ""), title_kr, track_info.get("artist", ""))
-        html = format_song_post(track_info, youtube_url, lyrics, impression)
+        # 아티스트 우선순위: 직접 입력 > Spotify 값
+        effective_artist = artist_manual if artist_manual else track_info.get("artist", "")
 
-        # 결과 화면은 다음 단계에서 연결합니다. 지금은 콘솔 출력으로 확인합니다.
+        blog_title = build_song_title(track_info.get("name", ""), title_kr, effective_artist)
+        html = format_song_post(track_info, youtube_url, lyrics, impression, title_kr=title_kr, manual_artist=artist_manual)
+
         inputs = {
             "spotify_link": spotify_url,
             "youtube_link": youtube_url,
             "title_kr": title_kr,
+            "artist": artist_manual,
             "lyrics": lyrics,
             "impression": impression,
         }
-        self.controller.show_result(
-            kind="song",
-            blog_title=blog_title,
-            html=html,
-            inputs=inputs,
-            return_screen="SongFormScreen",
-        )
 
     def load_inputs(self, inputs: dict):
         """기록에서 '불러오기'로 진입 시 폼에 값을 채웁니다."""
@@ -112,6 +108,8 @@ class SongFormScreen(ctk.CTkFrame):
         self.youtube_link.insert(0, inputs.get("youtube_link", ""))
         self.title_kr.delete(0, "end")
         self.title_kr.insert(0, inputs.get("title_kr", ""))
+        self.artist.delete(0, "end")
+        self.artist.insert(0, inputs.get("artist", ""))
         self.lyrics.set(inputs.get("lyrics", ""))
         self.impression.set(inputs.get("impression", ""))
         self.error_label.configure(text="")
