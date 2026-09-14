@@ -1,7 +1,3 @@
-import tempfile
-import webbrowser
-from pathlib import Path
-
 import customtkinter as ctk
 from tkinter import filedialog, messagebox
 
@@ -17,21 +13,30 @@ class ResultScreen(ctk.CTkFrame):
         self._current_title = None
         self._current_html = None
         self._return_screen = None
-        self._last_temp_path = None
 
         top_row = ctk.CTkFrame(self, fg_color="transparent")
         top_row.pack(fill="x", padx=24, pady=(20, 8))
 
         ctk.CTkLabel(top_row, text="결과", font=ctk.CTkFont(size=18, weight="bold")).pack(side="left")
 
-        ctk.CTkButton(top_row, text="복사하기", width=110, command=self._on_copy).pack(side="right", padx=(8, 0))
-        ctk.CTkButton(top_row, text="파일 저장", width=110, command=self._on_save).pack(side="right")
-        ctk.CTkButton(top_row, text="브라우저에서 보기", width=140, command=self._open_in_browser).pack(side="right", padx=(8, 0))
+        ctk.CTkButton(top_row, text="HTML 복사", width=110, command=self._on_copy_html).pack(side="right")
+        ctk.CTkButton(top_row, text="파일 저장", width=110, command=self._on_save).pack(side="right", padx=(0, 8))
 
-        self.title_label = ctk.CTkLabel(self, text="", anchor="w", text_color=("gray30", "gray70"))
-        self.title_label.pack(fill="x", padx=24, pady=(0, 8))
+        title_row = ctk.CTkFrame(self, fg_color="transparent")
+        title_row.pack(fill="x", padx=24, pady=(0, 8))
 
-        # 렌더링 대신 원문 HTML을 읽기 전용으로 보여줍니다 (구조 확인 + 복사용).
+        ctk.CTkLabel(title_row, text="블로그 제목", anchor="w", text_color=("gray40", "gray60"), font=ctk.CTkFont(size=12)).pack(fill="x")
+
+        title_inner = ctk.CTkFrame(title_row, fg_color="transparent")
+        title_inner.pack(fill="x", pady=(2, 0))
+
+        self.title_entry = ctk.CTkEntry(title_inner, font=ctk.CTkFont(weight="bold"))
+        self.title_entry.pack(side="left", fill="x", expand=True)
+
+        ctk.CTkButton(title_inner, text="제목 복사", width=90, command=self._on_copy_title).pack(side="left", padx=(8, 0))
+
+        ctk.CTkLabel(self, text="생성된 HTML", anchor="w", text_color=("gray40", "gray60"), font=ctk.CTkFont(size=12)).pack(fill="x", padx=24, pady=(8, 2))
+
         self.html_view = ctk.CTkTextbox(self, font=ctk.CTkFont(family="Consolas", size=12))
         self.html_view.pack(fill="both", expand=True, padx=24, pady=(0, 8))
 
@@ -54,7 +59,10 @@ class ResultScreen(ctk.CTkFrame):
         self._current_html = html
         self._return_screen = return_screen
 
-        self.title_label.configure(text=f"📝 {blog_title}")
+        self.title_entry.delete(0, "end")
+        self.title_entry.insert(0, blog_title)
+
+        self.html_view.configure(state="normal")
         self.html_view.delete("1.0", "end")
         self.html_view.insert("1.0", html)
         self.html_view.configure(state="disabled")
@@ -63,31 +71,16 @@ class ResultScreen(ctk.CTkFrame):
             add_entry(kind, blog_title, inputs, html)
 
         self.controller.show_screen("ResultScreen")
-        # 결과 화면 진입과 동시에 브라우저에서 실제 렌더링 미리보기를 띄웁니다.
-        self._open_in_browser()
 
-    def _open_in_browser(self):
-        if not self._current_html:
+    def _on_copy_title(self):
+        title = self.title_entry.get()
+        if not title:
             return
+        self.clipboard_clear()
+        self.clipboard_append(title)
+        messagebox.showinfo("복사 완료", "블로그 제목이 클립보드에 복사되었습니다.")
 
-        # 이전 임시 파일은 정리 (best-effort)
-        if self._last_temp_path:
-            try:
-                Path(self._last_temp_path).unlink(missing_ok=True)
-            except OSError:
-                pass
-
-        # 매번 새 임시 파일을 만들어야 브라우저 캐시로 옛날 내용이 뜨지 않습니다.
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".html", prefix="blog_preview_",
-            delete=False, encoding="utf-8"
-        ) as f:
-            f.write(self._current_html)
-            self._last_temp_path = f.name
-
-        webbrowser.open(f"file://{self._last_temp_path}")
-
-    def _on_copy(self):
+    def _on_copy_html(self):
         if not self._current_html:
             return
         self.clipboard_clear()
@@ -111,12 +104,3 @@ class ResultScreen(ctk.CTkFrame):
 
     def _on_back(self):
         self.controller.show_screen(self._return_screen or "MainScreen")
-
-    def cleanup_temp_files(self):
-        """프로그램 종료 시 App에서 호출 — 마지막으로 연 임시 미리보기 파일을 지웁니다."""
-        if self._last_temp_path:
-            try:
-                Path(self._last_temp_path).unlink(missing_ok=True)
-            except OSError:
-                pass
-            self._last_temp_path = None

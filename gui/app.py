@@ -48,7 +48,6 @@ class App(ctk.CTk):
         self.show_screen(screen_name)
 
     def _on_close(self):
-        self.screens["ResultScreen"].cleanup_temp_files()
         self.destroy()
 
 
