@@ -18,6 +18,8 @@ class App(ctk.CTk):
         ctk.set_appearance_mode("system")
         ctk.set_default_color_theme("blue")
 
+        self.protocol("WM_DELETE_WINDOW", self._on_close)
+
         container = ctk.CTkFrame(self, fg_color="transparent")
         container.pack(fill="both", expand=True)
         container.grid_rowconfigure(0, weight=1)
@@ -44,6 +46,10 @@ class App(ctk.CTk):
         screen_name = "SongFormScreen" if kind == "song" else "CodeFormScreen"
         self.screens[screen_name].load_inputs(inputs)
         self.show_screen(screen_name)
+
+    def _on_close(self):
+        self.screens["ResultScreen"].cleanup_temp_files()
+        self.destroy()
 
 
 def run_app():

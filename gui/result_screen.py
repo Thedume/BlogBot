@@ -111,3 +111,12 @@ class ResultScreen(ctk.CTkFrame):
 
     def _on_back(self):
         self.controller.show_screen(self._return_screen or "MainScreen")
+
+    def cleanup_temp_files(self):
+        """프로그램 종료 시 App에서 호출 — 마지막으로 연 임시 미리보기 파일을 지웁니다."""
+        if self._last_temp_path:
+            try:
+                Path(self._last_temp_path).unlink(missing_ok=True)
+            except OSError:
+                pass
+            self._last_temp_path = None
