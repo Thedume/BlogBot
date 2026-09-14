@@ -39,5 +39,6 @@ class MainScreen(ctk.CTkFrame):
         ctk.CTkButton(
             bottom_row, text="설정", width=100, height=28,
             fg_color="transparent", text_color=("gray20", "gray80"),
-            hover_color=("gray90", "gray30")
+            hover_color=("gray90", "gray30"),
+            command=lambda: controller.show_screen("SettingsScreen")
         ).pack(side="left", padx=6)
