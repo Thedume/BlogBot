@@ -80,5 +80,17 @@ class CodeFormScreen(ctk.CTkFrame):
         blog_title = build_code_title(language, problem_title)
         html = format_code_post(problem_title, problem, solution, code)
 
-        print("blog_title:", blog_title)
-        print(html)
+        inputs = {
+            "language": language,
+            "problem_title": problem_title,
+            "problem": problem,
+            "solution": solution,
+            "code": code,
+        }
+        self.controller.show_result(
+            kind="code",
+            blog_title=blog_title,
+            html=html,
+            inputs=inputs,
+            return_screen="CodeFormScreen",
+        )

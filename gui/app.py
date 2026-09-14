@@ -3,6 +3,7 @@ import customtkinter as ctk
 from gui.main_screen import MainScreen
 from gui.song_form import SongFormScreen
 from gui.code_form import CodeFormScreen
+from gui.result_screen import ResultScreen
 
 
 class App(ctk.CTk):
@@ -21,7 +22,7 @@ class App(ctk.CTk):
         container.grid_columnconfigure(0, weight=1)
 
         self.screens = {}
-        for ScreenClass in (MainScreen, SongFormScreen, CodeFormScreen):
+        for ScreenClass in (MainScreen, SongFormScreen, CodeFormScreen, ResultScreen):
             screen = ScreenClass(container, self)
             self.screens[ScreenClass.__name__] = screen
             screen.grid(row=0, column=0, sticky="nsew")
@@ -30,6 +31,9 @@ class App(ctk.CTk):
 
     def show_screen(self, name: str):
         self.screens[name].tkraise()
+
+    def show_result(self, kind: str, blog_title: str, html: str, inputs: dict, return_screen: str, save_to_history: bool = True):
+        self.screens["ResultScreen"].show_result(kind, blog_title, html, inputs, return_screen, save_to_history)
 
 
 def run_app():

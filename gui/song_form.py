@@ -89,5 +89,17 @@ class SongFormScreen(ctk.CTkFrame):
         html = format_song_post(track_info, youtube_url, lyrics, impression)
 
         # 결과 화면은 다음 단계에서 연결합니다. 지금은 콘솔 출력으로 확인합니다.
-        print("blog_title:", blog_title)
-        print(html)
+        inputs = {
+            "spotify_link": spotify_url,
+            "youtube_link": youtube_url,
+            "title_kr": title_kr,
+            "lyrics": lyrics,
+            "impression": impression,
+        }
+        self.controller.show_result(
+            kind="song",
+            blog_title=blog_title,
+            html=html,
+            inputs=inputs,
+            return_screen="SongFormScreen",
+        )
