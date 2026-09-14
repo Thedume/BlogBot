@@ -40,6 +40,11 @@ class App(ctk.CTk):
     def show_result(self, kind: str, blog_title: str, html: str, inputs: dict, return_screen: str, save_to_history: bool = True):
         self.screens["ResultScreen"].show_result(kind, blog_title, html, inputs, return_screen, save_to_history)
 
+    def load_into_form(self, kind: str, inputs: dict):
+        screen_name = "SongFormScreen" if kind == "song" else "CodeFormScreen"
+        self.screens[screen_name].load_inputs(inputs)
+        self.show_screen(screen_name)
+
 
 def run_app():
     app = App()

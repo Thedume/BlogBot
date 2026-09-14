@@ -94,3 +94,14 @@ class CodeFormScreen(ctk.CTkFrame):
             inputs=inputs,
             return_screen="CodeFormScreen",
         )
+
+    def load_inputs(self, inputs: dict):
+        """기록에서 '불러오기'로 진입 시 폼에 값을 채웁니다."""
+        self.language.delete(0, "end")
+        self.language.insert(0, inputs.get("language", ""))
+        self.problem_title.delete(0, "end")
+        self.problem_title.insert(0, inputs.get("problem_title", ""))
+        self.problem.set(inputs.get("problem", ""))
+        self.solution.set(inputs.get("solution", ""))
+        self.code.set(inputs.get("code", ""))
+        self.error_label.configure(text="")

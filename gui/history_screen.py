@@ -81,10 +81,14 @@ class HistoryScreen(ctk.CTkFrame):
         btn_col.pack(side="right", padx=12)
 
         ctk.CTkButton(btn_col, text="미리보기", width=80, command=lambda e=entry: self._on_preview(e)).pack(side="left", padx=4)
+        ctk.CTkButton(btn_col, text="불러오기", width=80, fg_color="transparent", border_width=1,
+                      text_color=("gray20", "gray80"),
+                      command=lambda e=entry: self._on_load(e)).pack(side="left", padx=4)
         ctk.CTkButton(btn_col, text="삭제", width=60, fg_color="transparent", border_width=1,
                       text_color=("red", "#ff6b6b"),
                       command=lambda e=entry: self._on_delete(e)).pack(side="left", padx=4)
 
+        
     def _on_preview(self, entry: dict):
         self.controller.show_result(
             kind=self._current_kind,
@@ -101,3 +105,6 @@ class HistoryScreen(ctk.CTkFrame):
             return
         delete_entry(self._current_kind, entry["id"])
         self._refresh_list()
+
+    def _on_load(self, entry: dict):
+        self.controller.load_into_form(self._current_kind, entry["inputs"])

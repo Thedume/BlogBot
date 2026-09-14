@@ -103,3 +103,15 @@ class SongFormScreen(ctk.CTkFrame):
             inputs=inputs,
             return_screen="SongFormScreen",
         )
+
+    def load_inputs(self, inputs: dict):
+        """기록에서 '불러오기'로 진입 시 폼에 값을 채웁니다."""
+        self.spotify_link.delete(0, "end")
+        self.spotify_link.insert(0, inputs.get("spotify_link", ""))
+        self.youtube_link.delete(0, "end")
+        self.youtube_link.insert(0, inputs.get("youtube_link", ""))
+        self.title_kr.delete(0, "end")
+        self.title_kr.insert(0, inputs.get("title_kr", ""))
+        self.lyrics.set(inputs.get("lyrics", ""))
+        self.impression.set(inputs.get("impression", ""))
+        self.error_label.configure(text="")
