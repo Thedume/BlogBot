@@ -100,6 +100,14 @@ class SongFormScreen(ctk.CTkFrame):
             "impression": impression,
         }
 
+        self.controller.show_result(
+            kind="song",
+            blog_title=blog_title,
+            html=html,
+            inputs=inputs,
+            return_screen="SongFormScreen",
+        )
+
     def load_inputs(self, inputs: dict):
         """기록에서 '불러오기'로 진입 시 폼에 값을 채웁니다."""
         self.spotify_link.delete(0, "end")
